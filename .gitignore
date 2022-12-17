@@ -2,3 +2,5 @@ error/
 screenshots/
 __pycache__/
 additional_page.py
+.env
+config/
