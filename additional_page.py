@@ -93,7 +93,7 @@ SELECT_OPTION_KEYWORD_DICT = {
     "Age range": "images/dropdowns/ageRange.png",
     "Ethnicity": "images/dropdowns/white.png",
     "pronouns": "images/dropdowns/sheher.png",
-    "gender": "images/dropdown/female.png",
+    "gender": "images/dropdowns/female.png",
     "App Store": "images/dropdowns/no.png",
     "Relocate": "images/dropdowns/yes.png",
 }

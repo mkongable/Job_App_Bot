@@ -568,9 +568,7 @@ def process_education_page():
 def process_privacy_page():
     blankCheck = pyautogui.locateCenterOnScreen('images/ack.png', confidence=0.95, region=FILL_OUT_REGION)
 
-    if not blankCheck:
-        return "Blocked"
-    else:
+    if blankCheck:
         move_to_and_click(blankCheck)
 
     # wait 0.2 seconds
@@ -579,6 +577,15 @@ def process_privacy_page():
     # find and click the next button
     next = pyautogui.locateCenterOnScreen('images/buttons/next.png', confidence=0.95, region=FILL_OUT_REGION)
     move_to_and_click(next)
+
+    # wait 0.2 seconds
+    pyautogui.sleep(0.2)
+
+    # check if bot is on the same page
+    privacyPage = pyautogui.locateCenterOnScreen('images/privacyPolicy.png', confidence=0.95, region=HEADER_REGION)
+
+    if privacyPage:
+        return "Blocked"
     
     return "Done"
 
