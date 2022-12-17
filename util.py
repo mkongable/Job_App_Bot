@@ -48,12 +48,14 @@ def process_application():
                     return "Submitted"
                 elif result == "Error":
                     print("Unknown contents in contact page")
-                    log_error_screenshot(FILL_OUT_REGION)
                     bail_with_save()
                     return "Error"
             elif homePage:
                 print("Processing home page")
-                process_home_page()
+                result = process_home_page()
+                if result == "Blocked":
+                    print("Home page blocked, save and bail")
+                    bail_with_save()
             elif resumePage:
                 print("Processing resume page")
                 process_resume_page()
@@ -125,7 +127,7 @@ def process_contact_page():
     # sometimes the submit button is on the contacts page
     # scroll down a little bit
 
-    pyautogui.scroll(-500)
+    pyautogui.scroll(-800)
 
     # wait 0.5 seconds
     pyautogui.sleep(0.5)
@@ -140,7 +142,6 @@ def process_contact_page():
         move_to_and_click(next)
         return "Proceed"
     else:
-        # screenshot the fill-out section and save it to error directory
         return "Error"
         
 
@@ -344,6 +345,10 @@ def bail():
 
 # exits the application, but saves it
 def bail_with_save():
+
+    # log screenshot of the fill out section for error analysis
+    log_error_screenshot(FILL_OUT_REGION)
+
     print("Saving application...")
     bail = pyautogui.locateCenterOnScreen('images/bail.png', confidence=0.95, region=FILL_OUT_REGION)
     move_to_and_click(bail)
@@ -352,7 +357,7 @@ def bail_with_save():
     pyautogui.sleep(0.2)
 
     # try 5 times to find the save button
-    move_to_and_click_with_retry('images/buttons/save.png', region=FILL_OUT_REGION, num_tries=5)
+    move_to_and_click_with_retry(['images/buttons/save.png'], region=FILL_OUT_REGION, num_tries=5)
 
     # wait 1.5 seconds
     pyautogui.sleep(1.5)
@@ -366,7 +371,7 @@ def bail_with_save():
 
 # processes the home page
 def process_home_page():
-    cityBox = pyautogui.locateCenterOnScreen('images/cityBox.png', confidence=0.95, region=FILL_OUT_REGION)
+    cityBox = detect_first_match(['images/homepage/cityBox.png', 'images/homepage/cityBox2.png'], region=FILL_OUT_REGION)
 
     if cityBox:
 
@@ -381,15 +386,20 @@ def process_home_page():
         # wait 0.2 seconds
         pyautogui.sleep(0.2)
 
-        selection = pyautogui.locateCenterOnScreen('images/CPI_US.png', confidence=0.95, region=FILL_OUT_REGION)
+        move_to_and_click_with_retry(['images/homepage/CPI_US.png', 'images/homepage/CPI_US2.png'], region=FILL_OUT_REGION, num_tries=5)
 
-        move_to_and_click(selection)
+    move_to_and_click_with_retry(['images/buttons/next.png'], region=FILL_OUT_REGION, num_tries=5)
 
-    next = pyautogui.locateCenterOnScreen('images/buttons/next.png', confidence=0.95, region=FILL_OUT_REGION)
+    # wait 0.2 seconds
+    pyautogui.sleep(0.2)
 
-    move_to_and_click(next)
+    homePage = pyautogui.locateCenterOnScreen('images/homePage.png', confidence=0.95, region=HEADER_REGION)
+    if homePage:
+         # stuck on homepage, report back the error
+         return "Blocked"
 
     pyautogui.moveTo((655,278), duration=0.1, tween=pyautogui.easeInOutQuad) # in case the next NEXT button appears right where the mouse is
+    return "Done"
 
 
 # process additional questions page
@@ -601,16 +611,30 @@ def scroll_and_proceed():
 
 
 # tries some number of times to detect an image in a specified region and click on it. raises exception if it fails. Delay parameter is the time to wait between tries
-def move_to_and_click_with_retry(image_url, region, num_tries=5, delay=0.5):
-    # open the image url
-    image = Image.open(image_url)
+def move_to_and_click_with_retry(image_urls, region, num_tries=5, delay=0.5):
+    if len(image_urls) == 0:
+        raise Exception("No images to detect")
+    
+    # open the image urls
+    images = [Image.open(image_url) for image_url in image_urls]
     for i in range(num_tries):
-        instance = pyautogui.locateCenterOnScreen(image, confidence=0.95, region=region)
+        instances = [pyautogui.locateCenterOnScreen(image, confidence=0.95, region=region) for image in images]
 
-        if instance:
+        if any(instances):
+            instance = next(instance for instance in instances if instance)
             move_to_and_click(instance)
             return
         else:
-            print(f"Attempt {i}. Failed to detect {image_url} on screen. Retrying...")
+            print(f"Attempt {i}. Failed to detect {image_urls[0]} on screen. Retrying...")
             pyautogui.sleep(delay)
-    raise Exception(f"Failed to detect {image} on screen after {num_tries} tries")
+    raise Exception(f"Failed to detect {image_urls[0]} on screen after {num_tries} tries")
+
+
+# tries to detect all instances of a list of images urls, and returns the first match box it finds
+def detect_first_match(image_urls, region):
+    images = [Image.open(image_url) for image_url in image_urls]
+    for image in images:
+        instance = pyautogui.locateCenterOnScreen(image, confidence=0.95, region=region)
+        if instance:
+            return instance
+    return None

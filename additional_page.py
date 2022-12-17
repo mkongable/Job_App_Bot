@@ -5,6 +5,10 @@ from text_recognition import *
 
 BLANK_BOX_KEYWORD_DICT = {
     "Linked": "https://www.linkedin.com/in/mkongable/",
+    "undergraduate": "North Dakota State University",
+    "undergraduate major": "Mechanical Engineering",
+    "GPA": "3.7",
+    "ACT score": "33",
     "AWS": "2",
     "Github": "https://github.com/mkongable",
     "Website": "https://github.com/mkongable",
@@ -48,9 +52,17 @@ BLANK_BOX_KEYWORD_DICT = {
 
 SELECT_OPTION_KEYWORD_DICT = {
     "Sponsorship": "images/dropdowns/no.png",
+    "clearance": "images/dropdowns/no.png",
     "legally": "images/dropdowns/yes.png",
     "backend": "images/dropdowns/yes.png",
     "first hear": "images/dropdowns/linkedin.png",
+    "computer science": "images/dropdowns/no.png",
+    "understanding": "images/dropdowns/yes.png",
+    "comfortable": "images/dropdowns/yes.png",
+    "experience": "images/dropdowns/yes.png",
+    "hear": "images/dropdowns/linkedin.png",
+    "certificat": "images/dropdowns/no.png",
+    "professional engineering": "images/dropdowns/no.png",
     "currently an employee": "images/dropdowns/no.png",
     "referral": "images/dropdowns/no.png",
     "API": "images/dropdowns/yes.png",
