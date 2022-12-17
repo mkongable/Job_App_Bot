@@ -351,8 +351,8 @@ def bail_with_save():
     # wait 0.2 seconds
     pyautogui.sleep(0.2)
 
-    save = pyautogui.locateCenterOnScreen('images/buttons/save.png', confidence=0.95, region=FILL_OUT_REGION)
-    move_to_and_click(save)
+    # try 5 times to find the save button
+    move_to_and_click_with_retry('images/buttons/save.png', region=FILL_OUT_REGION, num_tries=5)
 
     # wait 1.5 seconds
     pyautogui.sleep(1.5)
@@ -598,3 +598,19 @@ def scroll_and_proceed():
         pyautogui.sleep(0.2)
     else:
         raise Exception("Did not detect next or review button on page")
+
+
+# tries some number of times to detect an image in a specified region and click on it. raises exception if it fails. Delay parameter is the time to wait between tries
+def move_to_and_click_with_retry(image_url, region, num_tries=5, delay=0.5):
+    # open the image url
+    image = Image.open(image_url)
+    for i in range(num_tries):
+        instance = pyautogui.locateCenterOnScreen(image, confidence=0.95, region=region)
+
+        if instance:
+            move_to_and_click(instance)
+            return
+        else:
+            print(f"Attempt {i}. Failed to detect {image_url} on screen. Retrying...")
+            pyautogui.sleep(delay)
+    raise Exception(f"Failed to detect {image} on screen after {num_tries} tries")

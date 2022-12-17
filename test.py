@@ -1,5 +1,5 @@
 import pyautogui
 from util import *
-large_easy_apply = pyautogui.locateOnScreen('images/buttons/large_easy.png', confidence=0.95, region=APPLICATION_REGION)
-print(large_easy_apply)
-# log_error_screenshot(APPLICATION_REGION)
+# wait 2 seconds for the user to get to the job page
+pyautogui.sleep(2)
+print(bail_with_save())
